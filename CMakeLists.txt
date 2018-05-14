@@ -12,9 +12,7 @@ project(trabajo_planificacion)
 find_package(catkin REQUIRED COMPONENTS
   rospy)
 
-catkin_install_python(PROGRAMS
-   scripts/path_planning.py
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -110,6 +108,10 @@ catkin_package(
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
+
+catkin_install_python(PROGRAMS
+   scripts/path_planning.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 ###########
 ## Build ##
