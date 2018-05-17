@@ -10,7 +10,10 @@ project(trabajo_planificacion)
 #  find_package(catkin REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-  rospy)
+  rospy
+  geometry_msgs
+  message_generation
+)
 
 
 ## System dependencies are found with CMake's conventions
@@ -45,20 +48,17 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .msg/.srv/.action file to be processed
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
+add_service_files(
+  FILES
+  path_calc.srv
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+)
+ generate_messages(
+   DEPENDENCIES
+   std_msgs  
+   geometry_msgs
+ )
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -121,7 +121,7 @@ catkin_install_python(PROGRAMS
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-# ${catkin_INCLUDE_DIRS}
+ ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
