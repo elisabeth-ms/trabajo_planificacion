@@ -111,6 +111,7 @@ catkin_package(
 
 catkin_install_python(PROGRAMS
    scripts/path_planning.py
+   scripts/csv_to_map.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 ###########
