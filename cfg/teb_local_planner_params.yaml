@@ -1,0 +1,30 @@
+# file: teb_local_planner_params.yaml
+TebLocalPlannerROS:
+
+ # Trajectory
+ dt_ref: 0.3
+ dt_hysteresis: 0.1
+ global_plan_overwrite_orientation: True
+ allow_init_with_backwards_motion: False
+ max_global_plan_lookahead_dist: 3.0
+ feasibility_check_no_poses: 0
+
+ # Robot
+ max_vel_x: 0.4
+ max_vel_x_backwards: 0.2
+ max_vel_theta: 0.3
+ acc_lim_x: 0.5
+ acc_lim_theta: 0.5
+ min_turning_radius: 0.0 # diff-drive robot (can turn in place!)
+ footprint_model:
+  type: "point" # include robot radius in min_obstacle_dist
+ # Goal Tolerance
+ xy_goal_tolerance: 0.2
+ yaw_goal_tolerance: 0.1
+ # Obstacles
+ min_obstacle_dist: 0.25
+ costmap_obstacles_behind_robot_dist: 1.0
+ obstacle_poses_affected: 10
+ # Optimization
+ no_inner_iterations: 5
+ no_outer_iterations: 4
