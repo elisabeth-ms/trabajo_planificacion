@@ -30,6 +30,7 @@ class Map:
         self.points = []
         self.voro = []
         self.graph = {}
+        self.stay_nodes =[]
     @timing
     def storeMap(self):
         self.map=[]
@@ -59,9 +60,9 @@ class Map:
         # print vor.ridge_points
 
         #Delete edges to infinity
-        print self.voro.vertices[1]
-        print self.voro.vertices[3]
-        print self.voro.vertices[21]
+        #print self.voro.vertices[1]
+        #print self.voro.vertices[3]
+        #print self.voro.vertices[21]
 
         self.voro.ridge_points = np.array(self.voro.ridge_points)
         self.voro.ridge_vertices = np.array(self.voro.ridge_vertices)
@@ -77,6 +78,8 @@ class Map:
             if self.checkNeighbors(edge) is False:
                 aux.append([edge[0],edge[1]])
                 aux2.append(self.voro.ridge_points[count])
+                self.stay_nodes.append(edge[0])
+                self.stay_nodes.append(edge[1])
             count = count +1
 
         #print aux
@@ -96,11 +99,13 @@ class Map:
             self.graph.setdefault(r[0], []).append(r[1])
             self.graph.setdefault(r[1], []).append(r[0])
 
-        print self.graph
-        print self.voro.vertices[1]
+        #print self.graph
+        #print self.voro.vertices[1]
         # Para saber que punto 2D se corresponde con cada nodo:
         # Por ejemplo para el nodo 1:
         # print self.voro.vertices[1]
+        #voronoi_plot_2d(self.voro)
+        #plt.show()
 
 
 
@@ -116,39 +121,37 @@ class Map:
 
 
     def a_star_path(self,start,goal):
+        print "start:", start
+        print "goal: ", goal
         openSet = set()
         closedSet = set()
         openSet.add(start)
         closedSet.add(start)
         costSoFar = {}
-        costSoFar[start] = 0
         cameFrom = {}
         cameFrom[start] = None
+        for n in self.stay_nodes:
+            costSoFar[n] = 10000000
+        costSoFar[start] = 0
+        print costSoFar
         while len(openSet):
             current = min(costSoFar, key=costSoFar.get)
             if current == goal:
-                 break
+                break
+            print current
             openSet.remove(current)
             closedSet.add(current)
-            first = True
-            for next in self.graph[current]: # Neighbors of current
-                if first:
-                    previous = next
-                    first = False
-                if next not in closedSet:
-                    new_cost = costSoFar[current] + self.cost(current, next)
-                    if previous in costSoFar:
-                        if new_cost < costSoFar[previous]:
-                            costSoFar[next] = new_cost
-                            cameFrom[next] = current
-                            openSet.add(next)
-                            previous = next
-                    else:
-                        costSoFar[next] = new_cost
-                        cameFrom[next] = current
-                        openSet.add(next)
-                        previous = next
-            first = True
+            for neighbour in self.graph[current]:
+                print neighbour
+                if neighbour in closedSet:
+                    continue
+                else:
+                    openSet.add(neighbour)
+                    new_cost = costSoFar[current] + self.cost(current, neighbour)
+                    print new_cost
+                    if new_cost < costSoFar[neighbour]:
+                        costSoFar[neighbour] = new_cost
+                        cameFrom[neighbour] = current
             costSoFar.pop(current)
         return self.retracePath(goal, start, cameFrom)
 
@@ -180,37 +183,39 @@ class Map:
         plt.show()
 
 
-def compute_path(req):
-    print req.start
-    print req.final
-    o_path = [req.start.pose.position.x, req.start.pose.position.y]
-    f_path = [req.final.pose.position.x, req.final.pose.position.y]
+    def compute_path(self,req):
+        print req.start
+        print req.final
+        o_path = [req.start.pose.position.x, req.start.pose.position.y]
+        f_path = [req.final.pose.position.x, req.final.pose.position.y]
 
-    print o_path
-    first=True
-    nodo_i = []
-    nodo_f = []
-    for edge in map.voro.ridge_vertices:
-        v1 = map.voro.vertices[edge[0]]
-        if first:
-            d1 = (v1[0]-o_path[0])*(v1[0]-o_path[0]) + (v1[1]-o_path[1])*(v1[1]-o_path[1])
-            d2 = (v1[0]-f_path[0])*(v1[0]-f_path[0]) + (v1[1]-f_path[1])*(v1[1]-f_path[1])
-            first = False
-            node_i = edge[0]
-            node_f = edge[0]
-        else:
-            aux = (v1[0]-o_path[0])*(v1[0]-o_path[0]) + (v1[1]-o_path[1])*(v1[1]-o_path[1])
-            if aux < d1:
-                d1 = aux
-                node_i = edge[0]
-            aux = (v1[0] - f_path[0]) * (v1[0] - f_path[0]) + (v1[1] - f_path[1]) * (v1[1] - f_path[1])
-            if aux < d2:
-                d2 = aux
-                node_f = edge[0]
-    print node_i
-    print node_f
-    path = map.a_star_path(node_i,node_f)
-    map.plot(path)
+        #print o_path
+        first=True
+        nodo_i = []
+        nodo_f = []
+        for n in self.stay_nodes:
+            v1 = map.voro.vertices[n]
+            if first:
+                d1 = (v1[0]-o_path[0])*(v1[0]-o_path[0]) + (v1[1]-o_path[1])*(v1[1]-o_path[1])
+                d2 = (v1[0]-f_path[0])*(v1[0]-f_path[0]) + (v1[1]-f_path[1])*(v1[1]-f_path[1])
+                first = False
+                node_i = n
+                node_f = n
+            else:
+                aux = (v1[0]-o_path[0])*(v1[0]-o_path[0]) + (v1[1]-o_path[1])*(v1[1]-o_path[1])
+                if aux < d1:
+                    d1 = aux
+                    node_i = n
+                aux = (v1[0] - f_path[0]) * (v1[0] - f_path[0]) + (v1[1] - f_path[1]) * (v1[1] - f_path[1])
+                if aux < d2:
+                    d2 = aux
+                    node_f = n
+        print self.voro.vertices[node_i]
+        print node_i
+        print self.voro.vertices[node_f]
+        print node_f
+        path = self.a_star_path(node_i,node_f)
+        self.plot(path)
 
 if __name__ == '__main__':
     rospy.init_node('path_planning', anonymous=True)
@@ -219,7 +224,7 @@ if __name__ == '__main__':
     map.storeMap()
     map.readMap()
     map.createVoronoi()
-    rospy.Service('path_calc',path_calc,compute_path)
+    rospy.Service('path_calc',path_calc,map.compute_path)
     rospy.spin()
 
 
