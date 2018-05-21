@@ -12,6 +12,7 @@ project(trabajo_planificacion)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   geometry_msgs
+  nav_msgs
   message_generation
   roscpp
   tf
@@ -29,7 +30,7 @@ add_service_files(
 )
  generate_messages(
    DEPENDENCIES
-   std_msgs  
+   std_msgs
    geometry_msgs
  )
 
@@ -78,5 +79,3 @@ install(FILES astar_voronoi_plugin.xml
 
 
 add_definitions(${EIGEN3_DEFINITIONS})
-
-

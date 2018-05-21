@@ -51,6 +51,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>roscpp</build_depend>
@@ -69,6 +70,8 @@
   <exec_depend>nav_core</exec_depend>
   <exec_depend>tf</exec_depend>
   <exec_depend>global_planner</exec_depend>
+  <build_depend>rospy</build_depend>
+
     <export>
         <nav_core plugin="${prefix}/astar_voronoi_plugin.xml" />
 </export>
