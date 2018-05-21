@@ -33,7 +33,7 @@ def velocity_plotter():
   global trajectory
   rospy.init_node("visualize_velocity_profile", anonymous=True)
 
-  topic_name = "/test_optim_node/teb_feedback" # define feedback topic here!
+  topic_name = "/move_base/TebLocalPlannerROS/teb_feedback" # define feedback topic here!
   rospy.Subscriber(topic_name, FeedbackMsg, feedback_callback, queue_size = 1)
 
   rospy.loginfo("Visualizing velocity profile published on '%s'.",topic_name)
