@@ -1,4 +1,6 @@
 local_costmap:
+ global_frame: /odom
+ robot_base_frame: /base_link
  update_frequency: 5.0
  publish_frequency: 2.0
  static_map: false
@@ -8,3 +10,17 @@ local_costmap:
  resolution: 0.1 # -> computation time: teb_local_planner
  plugins:
   - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+
+ obstacle_layer:
+    obstacle_range: 4.9
+    max_obstacle_range: 4.9
+    raytrace_range: 5.8
+    track_unknown_space: false
+    transform_tolerance: 0.2 #default=0.2
+    observation_sources: laser #laserfront_scan_sensor #laserback_scan_sensor
+    #laserfront_scan_sensor: {sensor_frame: base_laser_link_0, data_type: LaserScan, topic: base_scan_0, marking: true, clearing: true, inf_is_valid: false, expected_update_rate: 1.0, obstacle_range: 4.95, raytrace_range: 5.8}
+    #laserback_scan_sensor: {sensor_frame: base_laser_link_1, data_type: LaserScan, topic: base_scan_1, marking: true, clearing: true, inf_is_valid: false, expected_update_rate: 1.0, obstacle_range: 4.95, raytrace_range: 5.8}
+    laser: {sensor_frame: base_link, data_type: LaserScan, topic: scan, marking: true, clearing: true, inf_is_valid: true, expected_update_rate: 0.6, obstacle_range: 4.95, raytrace_range: 5.8}
+    min_obstacle_height: 0.0
+    max_obstacle_height: 10
+cost_scaling_factor: 10.0 #10.0=default
