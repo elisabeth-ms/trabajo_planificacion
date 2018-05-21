@@ -20,10 +20,14 @@ from std_msgs.msg import Header
 from geometry_msgs.msg import Point
 from std_msgs.msg import ColorRGBA
 from math import atan2,degrees
+from nav_msgs.msg import OccupancyGrid
 
+from scipy.interpolate import interp1d
 
-voro_publisher = rospy.Publisher('visualization_voronoi', Marker, queue_size=10)
 path = []
+voro_publisher = rospy.Publisher('visualization_voronoi', Marker, queue_size=10)
+
+
 def timing(f):
     def wrap(*args):
         time1 = time.time()
@@ -35,13 +39,16 @@ def timing(f):
 
 #Store csvfile data in a map
 class Map:
-    def __init__(self, csvfile):
+    def __init__(self):
         self.map=[]
-        self.csvfile = csvfile
+        self.map1=[]
+        #self.csvfile = csvfile
         self.points = []
         self.voro = []
         self.graph = {}
         self.stay_nodes =[]
+        self.res = 1
+
     @timing
     def storeMap(self):
         self.map=[]
@@ -49,8 +56,8 @@ class Map:
             self.map = np.loadtxt(self.csvfile,dtype=int, delimiter=",")
 
     @timing
-    def readMap(self):
-        for row in self.map:
+    def readMap(self,map):
+        for row in map:
             print row
 
     @timing
@@ -58,12 +65,12 @@ class Map:
         for i in range(0,len(self.map)):
             for j in range(0,len(self.map[0])):
                 if self.map[i][j] == 1:
-                    self.points.append([i,j])
+                    self.points.append([i*self.res,j*self.res])
                     #if j+1<len(self.map[0]):
-                    self.points.append([i,j+1])
-                    self.points.append([i+1,j+1])
+                    self.points.append([i*self.res,(j+1)*self.res])
+                    self.points.append([(i+1)*self.res,(j+1)*self.res])
                     #        if i+1<len(self.map):
-                    self.points.append([i + 1, j])
+                    self.points.append([(i + 1)*self.res, j*self.res])
         self.points = np.array(self.points)
         self.voro = Voronoi(self.points)
         #print self.voro.point_region
@@ -84,7 +91,7 @@ class Map:
         count = 0
         aux = []
         aux2= []
-        # check if node is between four ridge points
+        #check if node is between four ridge points
         for edge in self.voro.ridge_vertices:
             if self.checkNeighbors(edge) is False:
                 aux.append([edge[0],edge[1]])
@@ -97,9 +104,9 @@ class Map:
         #print aux2
         self.voro.ridge_points = np.array(aux2)
         self.voro.ridge_vertices = np.array(aux)
-        print self.voro.ridge_vertices
+        #print self.voro.ridge_vertices
         #print self.voro.vertices
-        print self.voro.ridge_vertices
+        #print self.voro.ridge_vertices
 
 
         # Store edges in a dictionary.
@@ -122,8 +129,8 @@ class Map:
 
 
     def checkNeighbors(self,edge):
-        n1 = self.voro.vertices[edge[0]]
-        n2 = self.voro.vertices[edge[1]]
+        n1 = self.voro.vertices[edge[0]]/self.res
+        n2 = self.voro.vertices[edge[1]]/self.res
         if self.map[int(n1[0])][int(n1[1])]:
             return True
         if self.map[int(n2[0])][int(n2[1])]:
@@ -198,8 +205,9 @@ class Map:
 
 
     def compute_path(self,req):
-        print req.start
-        print req.final
+        #print req.start
+        #print req.final
+        print "COMPUTING PATH"
         o_path = [req.start.pose.position.x, req.start.pose.position.y]
         f_path = [req.final.pose.position.x, req.final.pose.position.y]
         res = path_calcResponse()
@@ -217,10 +225,10 @@ class Map:
         poseArray.poses.append(pose)
         res.path = poseArray
 
-        if self.map[int(o_path[0])][int(o_path[1])]==1:
+        if self.map[int(o_path[0]/self.res)][int(o_path[1]/self.res)]==1:
             res.result = 1
             return res
-        elif self.map[int(f_path[0])][int(f_path[1])]==1:
+        elif self.map[int(f_path[0]/self.res)][int(f_path[1]/self.res)]==1:
             res.result = 2
             return res
         for n in self.stay_nodes:
@@ -243,32 +251,60 @@ class Map:
 
         path = self.a_star_path(node_i,node_f)
         #Miro los dos primeros nodos para filtrar el nodo 1 por si lo aleja de la ruta.
-        v1 = self.voro.vertices[path[0]]
-        v2 = self.voro.vertices[path[1]]
-        print "v1:",v1
-        print "v2:",v2
-        print "o_path-v1",o_path[0]-v1[0]
-        print "o_path-v1", o_path[1] - v1[1]
-        print "o_path-v2", o_path[0] - v2[0]
-        print "o_path-v2", o_path[1] - v2[1]
-        if o_path[0]-v1[0]>0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]<0:
-            path.remove(path[0])
-        elif o_path[0]-v1[0]>0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]>0:
-            path.remove(path[0])
-        elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]<0:
-            path.remove(path[0])
-        elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]>0:
-            path.remove(path[0])
-        elif o_path[0] - v1[0] < 0 and o_path[1] - v1[1] > 0 and o_path[0] - v2[0] > 0 and o_path[1] - v2[1] < 0:
-            path.remove(path[0])
-        elif o_path[0] == v1[0]:
-            path.remove(path[0])
+        # if len(path)>2:
+        #     v1 = self.voro.vertices[path[0]]
+        #     v2 = self.voro.vertices[path[1]]
+        #     print "v1:",v1
+        #     print "v2:",v2
+        #     print "o_path-v1",o_path[0]-v1[0]
+        #     print "o_path-v1", o_path[1] - v1[1]
+        #     print "o_path-v2", o_path[0] - v2[0]
+        #     print "o_path-v2", o_path[1] - v2[1] # v1 = self.voro.vertices[path[0]]
+        #     v2 = self.voro.vertices[path[1]]
+        #     print "v1:",v1
+        #     print "v2:",v2
+        #     print "o_path-v1",o_path[0]-v1[0]
+        #     print "o_path-v1", o_path[1] - v1[1]
+        #     print "o_path-v2", o_path[0] - v2[0]
+        #     print "o_path-v2", o_path[1] - v2[1]
+        #     if o_path[0]-v1[0]>0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]<0:
+        #         path.remove(path[0])
+        #     elif o_path[0]-v1[0]>0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]>0:
+        #         path.remove(path[0])
+        #     elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]<0:
+        #         path.remove(path[0])
+        #     elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]>0:
+        #         path.remove(path[0])
+        #     elif o_path[0] - v1[0] < 0 and o_path[1] - v1[1] > 0 and o_path[0] - v2[0] > 0 and o_path[1] - v2[1] < 0:
+        #         path.remove(path[0])
+        #     elif o_path[0] == v1[0]:
+        #         path.remove(path[0])
+        #f = interp1d(self.voro.vertices[path[0]],self.voro.vertices[path[1]])
+        # print path[0]
+        #print path[1]
+        punto = []
         for p in path:
             v = self.voro.vertices[p]
+            punto.append([v[0],v1[1]])
             pose = Pose()
             pose.position.x = v[0]
             pose.position.y = v[1]
             poseArray.poses.append(pose)
+
+
+        # print punto
+        # x=[]
+        # y=[]
+        # for p in punto:
+        #     x.append(p[0])
+        #     y.append(p[1])
+        # print x
+        # print y
+        # f = interp1d(x,y)
+        # xnew = np.linspace(min(x), max(x), num=100, endpoint=True)
+        # ynew = f(xnew)
+        # for x in xnew:
+
         pose = Pose()
         pose.position.x = req.final.pose.position.x
         pose.position.y = req.final.pose.position.y
@@ -278,8 +314,7 @@ class Map:
         return res
 
     def visualize_voronoi(self):
-
-        print "aqui toy"
+        marker_voro_edges=[]
         marker_voro_edges = Marker(id=0, header=Header(frame_id='map', stamp=rospy.Time.now()))
         marker_voro_edges.type = Marker.LINE_LIST
         marker_voro_edges.action = Marker.ADD
@@ -297,12 +332,14 @@ class Map:
             aux = self.voro.vertices[edge[0]]
             p1.x = aux[0]
             p1.y = aux[1]
+            #print p1.x,p1.y
             p1.z = 0.0
             # print  p.x
             # print  p.y
             # print  p.z
             # print p1
             marker_voro_edges.points.append(p1)
+            #print marker_voro_edges
             marker_voro_edges.colors.append(line_color)
             aux = self.voro.vertices[edge[1]]
             p2 = Point()
@@ -317,15 +354,31 @@ class Map:
             marker_voro_edges.colors.append(line_color)
             voro_publisher.publish(marker_voro_edges)
 
+    def callback_map(self,data):
+        self.res = data.info.resolution
+        self.map= np.zeros((data.info.width,data.info.height),dtype=int)
+        self.readMap(self.map)
+        for i in range(0,data.info.width):
+            for j in range(0,data.info.height):
+                #print data.data[j * data.info.width + i]
+                if data.data[j*data.info.width+i]==100:
+                    self.map[i][j]=1
+        self.readMap(self.map)
+        self.createVoronoi()
+        self.visualize_voronoi()
+
+
 
 if __name__ == '__main__':
     rospy.init_node('path_planning', anonymous=True)
-    input = raw_input("Please enter map path: ")
-    map = Map(input)
-    map.storeMap()
-    map.readMap()
-    map.createVoronoi()
-    map.visualize_voronoi()
+    #input = raw_input("Please enter map path: ")
+    #map = Map(input)
+    map= Map()
+    rospy.Subscriber("map",OccupancyGrid,map.callback_map)
+    #map.storeMap()
+    #map.readMap(map.map)
+    #map.createVoronoi()
+    #map.visualize_voronoi()
     rospy.Service('path_calc',path_calc,map.compute_path)
     while not rospy.is_shutdown():
         rospy.spin()
