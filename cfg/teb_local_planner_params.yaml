@@ -1,6 +1,6 @@
 # file: teb_local_planner_params.yaml
 TebLocalPlannerROS:
-
+ publish_feedback: true
  # Trajectory
  dt_ref: 0.3
  dt_hysteresis: 0.1
