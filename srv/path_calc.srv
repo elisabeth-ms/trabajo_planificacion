@@ -3,3 +3,4 @@ geometry_msgs/PoseStamped final
 string planner
 ---
 int64 result
+geometry_msgs/PoseArray path
