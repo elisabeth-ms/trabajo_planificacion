@@ -40,7 +40,7 @@
 
   <rosparam file="$(find trabajo_planificacion)/cfg/teb_local_planner_params.yaml" command ="load"/>
 
-  <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
+  <param name="base_global_planner" value="AstarVoronoi/AstarVoronoi"/>
   <param name="planner_frequency" value="1.0" />
   <param name="planner_patience" value="5.0" />
 
@@ -48,11 +48,10 @@
   <param name="controller_frequency" value="5.0" />
   <param name="controller_patience" value="15.0" />
   <remap from="/cmd_vel" to="/mobile_base/commands/velocity"/>
-  </node>
 
+  </node>
   <!-- ****** Maps ***** -->
-  <node name="map_server" pkg="map_server" type="map_server" args
-  ="$(find trabajo_planificacion)/maps/map1.yaml" output="screen">
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find trabajo_planificacion)/maps/map1.yaml" output="screen">
   <param name="frame_id" value="map"/>
   </node>
 
