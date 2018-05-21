@@ -1,0 +1,7 @@
+<library path="lib/libastar_voronoi">
+  <class name="AstarVoronoi/AstarVoronoi" type="AstarVoronoi::AstarVoronoi" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>
+      A simple planner that seeks to place a legal carrot in-front of the robot
+    </description>
+  </class>
+</library>
