@@ -27,7 +27,10 @@
   <!--include file="$(find turtlebot_teleop)/launch/keyboard_teleop.launch"/-->
   <!--include file="$(find turtlebot_gazebo)/launch/gmapping_demo.launch"/-->
 
-  <node pkg="trabajo_planificacion" type="path_planning.py" name="path_planning"/>
+  <!--node pkg="trabajo_planificacion" type="path_planning.py" name="path_planning"/-->
+  <node pkg="trabajo_planificacion" type="rrt_path.py" name="rrt_path">
+  <!--remap from="/rrt_plan" to="/move_base/GlobalPlanner/plan"/-->
+  </node>
   <!-- ************** Navigation *************** -->
   <node pkg="move_base" type="move_base" clear_params="true" respawn="false" name="move_base" output="screen" >
 
@@ -42,7 +45,8 @@
   <rosparam file="$(find trabajo_planificacion)/cfg/teb_local_planner_params.yaml" command ="load"/>
 
   <param name="base_global_planner" value="AstarVoronoi/AstarVoronoi"/>
-  <param name="planner_frequency" value="2.0" />
+  <!--remap from="move_base/GlobalPlanner/plan" to="prueba"/-->
+  <param name="planner_frequency" value="0.0" />
   <param name="planner_patience" value="5.0" />
 
   <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS"/>

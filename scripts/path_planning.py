@@ -152,22 +152,22 @@ class Map:
         for n in self.stay_nodes:
             costSoFar[n] = 10000000
         costSoFar[start] = 0
-        print costSoFar
+        #print costSoFar
         while len(openSet):
             current = min(costSoFar, key=costSoFar.get)
             if current == goal:
                 break
-            print current
+            #print current
             openSet.remove(current)
             closedSet.add(current)
             for neighbour in self.graph[current]:
-                print neighbour
+                #print neighbour
                 if neighbour in closedSet:
                     continue
                 else:
                     openSet.add(neighbour)
                     new_cost = costSoFar[current] + self.cost(current, neighbour)
-                    print new_cost
+                    #print new_cost
                     if new_cost < costSoFar[neighbour]:
                         costSoFar[neighbour] = new_cost
                         cameFrom[neighbour] = current
@@ -251,34 +251,34 @@ class Map:
 
         path = self.a_star_path(node_i,node_f)
         #Miro los dos primeros nodos para filtrar el nodo 1 por si lo aleja de la ruta.
-        # if len(path)>2:
-        #     v1 = self.voro.vertices[path[0]]
-        #     v2 = self.voro.vertices[path[1]]
-        #     print "v1:",v1
-        #     print "v2:",v2
-        #     print "o_path-v1",o_path[0]-v1[0]
-        #     print "o_path-v1", o_path[1] - v1[1]
-        #     print "o_path-v2", o_path[0] - v2[0]
-        #     print "o_path-v2", o_path[1] - v2[1] # v1 = self.voro.vertices[path[0]]
-        #     v2 = self.voro.vertices[path[1]]
-        #     print "v1:",v1
-        #     print "v2:",v2
-        #     print "o_path-v1",o_path[0]-v1[0]
-        #     print "o_path-v1", o_path[1] - v1[1]
-        #     print "o_path-v2", o_path[0] - v2[0]
-        #     print "o_path-v2", o_path[1] - v2[1]
-        #     if o_path[0]-v1[0]>0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]<0:
-        #         path.remove(path[0])
-        #     elif o_path[0]-v1[0]>0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]>0:
-        #         path.remove(path[0])
-        #     elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]<0:
-        #         path.remove(path[0])
-        #     elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]>0:
-        #         path.remove(path[0])
-        #     elif o_path[0] - v1[0] < 0 and o_path[1] - v1[1] > 0 and o_path[0] - v2[0] > 0 and o_path[1] - v2[1] < 0:
-        #         path.remove(path[0])
-        #     elif o_path[0] == v1[0]:
-        #         path.remove(path[0])
+        if len(path)>2:
+            v1 = self.voro.vertices[path[0]]
+            v2 = self.voro.vertices[path[1]]
+            #print "v1:",v1
+            #print "v2:",v2
+            #print "o_path-v1",o_path[0]-v1[0]
+            #print "o_path-v1", o_path[1] - v1[1]
+            #print "o_path-v2", o_path[0] - v2[0]
+            #print "o_path-v2", o_path[1] - v2[1] # v1 = self.voro.vertices[path[0]]
+            v2 = self.voro.vertices[path[1]]
+            #print "v1:",v1
+            #print "v2:",v2
+            #print "o_path-v1",o_path[0]-v1[0]
+            #print "o_path-v1", o_path[1] - v1[1]
+            #print "o_path-v2", o_path[0] - v2[0]
+            #print "o_path-v2", o_path[1] - v2[1]
+            if o_path[0]-v1[0]>0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]<0:
+                path.remove(path[0])
+            elif o_path[0]-v1[0]>0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]>0 and o_path[1]-v2[1]>0:
+                path.remove(path[0])
+            elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]<0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]<0:
+                path.remove(path[0])
+            elif o_path[0]-v1[0]<0 and o_path[1]-v1[1]>0 and o_path[0]-v2[0]<0 and o_path[1]-v2[1]>0:
+                path.remove(path[0])
+            elif o_path[0] - v1[0] < 0 and o_path[1] - v1[1] > 0 and o_path[0] - v2[0] > 0 and o_path[1] - v2[1] < 0:
+                path.remove(path[0])
+            elif o_path[0] == v1[0]:
+                path.remove(path[0])
         #f = interp1d(self.voro.vertices[path[0]],self.voro.vertices[path[1]])
         # print path[0]
         #print path[1]
@@ -374,7 +374,7 @@ if __name__ == '__main__':
     #input = raw_input("Please enter map path: ")
     #map = Map(input)
     map= Map()
-    rospy.Subscriber("map",OccupancyGrid,map.callback_map)
+    rospy.Subscriber("move_base/global_costmap/costmap",OccupancyGrid,map.callback_map)
     #map.storeMap()
     #map.readMap(map.map)
     #map.createVoronoi()

@@ -6,28 +6,20 @@
   <arg name="battery"    value="$(optenv TURTLEBOT_BATTERY /proc/acpi/battery/BAT0)"/>  <!-- /proc/acpi/battery/BAT0 -->
   <arg name="stacks"     value="$(optenv TURTLEBOT_STACKS hexagons)"/>  <!-- circles, hexagons -->
   <arg name="3d_sensor"  value="$(optenv TURTLEBOT_3D_SENSOR kinect)"/>  <!-- kinect, asus_xtion_pro -->
-  <arg name="initial_pose_x" default="2.5"/>
-  <arg name="initial_pose_y" default="2.5"/>
+  <arg name="initial_pose_x" default="4.5"/>
+  <arg name="initial_pose_y" default="14.5"/>
   <arg name="initial_pose_a" default="0.0"/>
 
-  <!--include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="use_sim_time" value="true"/>
-    <arg name="debug" value="false"/>
-    <arg name="gui" value="$(arg gui)" />
-    <arg name="world_name" value="$(find turtlebot_gazebo)/worlds/map1.world"/>
-  </include-->
-
-  <include file="$(find turtlebot_gazebo)/launch/map1_world.launch">
+  <include file="$(find turtlebot_gazebo)/launch/map4_world.launch">
   </include>
 
-
+  <node pkg="trabajo_planificacion" type="rrt_path.py" name="rrt_path"/>
 
   <node name="rviz" pkg="rviz" type="rviz" respawn="true" />
 
   <!--include file="$(find turtlebot_teleop)/launch/keyboard_teleop.launch"/-->
   <!--include file="$(find turtlebot_gazebo)/launch/gmapping_demo.launch"/-->
 
-  <node pkg="trabajo_planificacion" type="path_planning.py" name="path_planning"/>
   <!-- ************** Navigation *************** -->
   <node pkg="move_base" type="move_base" clear_params="true" respawn="false" name="move_base" output="screen" >
 
@@ -42,17 +34,18 @@
   <rosparam file="$(find trabajo_planificacion)/cfg/teb_local_planner_params.yaml" command ="load"/>
 
   <param name="base_global_planner" value="AstarVoronoi/AstarVoronoi"/>
-  <param name="planner_frequency" value="2.0" />
+  <param name="planner_frequency" value="0.0" />
   <param name="planner_patience" value="5.0" />
 
   <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS"/>
   <param name="controller_frequency" value="5.0" />
   <param name="controller_patience" value="15.0" />
   <remap from="/cmd_vel" to="/mobile_base/commands/velocity"/>
-
   </node>
+
   <!-- ****** Maps ***** -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find trabajo_planificacion)/maps/map1.yaml" output="screen">
+  <node name="map_server" pkg="map_server" type="map_server" args
+  ="$(find trabajo_planificacion)/maps/map4.yaml" output="screen">
   <param name="frame_id" value="map"/>
   </node>
 

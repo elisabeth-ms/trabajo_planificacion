@@ -36,6 +36,7 @@ add_service_files(
 catkin_install_python(PROGRAMS
    scripts/path_planning.py
    scripts/csv_to_map.py
+   scripts/rrt_path.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 catkin_package(
