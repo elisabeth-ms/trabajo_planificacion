@@ -42,7 +42,7 @@
   <param name="controller_patience" value="15.0" />
   <remap from="/cmd_vel" to="/mobile_base/commands/velocity"/>
   </node>
-  <node pkg="trabajo_planificacion" type="rrt_path.py" name="rrt_path"/>
+  <!--node pkg="trabajo_planificacion" type="rrt_path.py" name="rrt_path"/-->
   <!-- ****** Maps ***** -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find trabajo_planificacion)/maps/map2.yaml" output="screen">
   <param name="frame_id" value="map"/>

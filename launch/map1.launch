@@ -27,7 +27,7 @@
   <!--include file="$(find turtlebot_teleop)/launch/keyboard_teleop.launch"/-->
   <!--include file="$(find turtlebot_gazebo)/launch/gmapping_demo.launch"/-->
 
-  <node pkg="trabajo_planificacion" type="path_planning.py" name="path_planning"/>
+  <!--node pkg="trabajo_planificacion" type="path_planning.py" name="path_planning"/-->
   <!-- ************** Navigation *************** -->
   <node pkg="move_base" type="move_base" clear_params="true" respawn="false" name="move_base" output="screen" >
 
@@ -42,7 +42,7 @@
   <rosparam file="$(find trabajo_planificacion)/cfg/teb_local_planner_params.yaml" command ="load"/>
 
   <param name="base_global_planner" value="AstarVoronoi/AstarVoronoi"/>
-  <param name="planner_frequency" value="2.0" />
+  <param name="planner_frequency" value="0.0" />
   <param name="planner_patience" value="5.0" />
 
   <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS"/>
@@ -56,7 +56,17 @@
   <param name="frame_id" value="map"/>
   </node>
 
+
+
+  <arg name="custom_amcl_launch_file" default="$(find trabajo_planificacion)/launch/includes/$(arg 3d_sensor)_amcl.launch.xml"/> 
+
+  <include file="$(arg custom_amcl_launch_file)">
+    <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+    <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+    <arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+  </include>
 <!-- ****** AMCL ***** -->
+<!--
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <param name="initial_pose_x" value="$(arg initial_pose_x)"/>
     <param name="initial_pose_y" value="$(arg initial_pose_y)"/>
@@ -65,5 +75,5 @@
     <param name="use_map_topic" value="true"/>
     <param name="transform_tolerance" value="0.5"/>
   </node>
-
+-->
 </launch>

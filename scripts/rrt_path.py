@@ -84,9 +84,11 @@ class RRT():
     def readMap(self, map):
         for row in map:
             print row
-
+    @timing
     def compute_rrt(self):
         success = False
+	d=0
+        init = rospy.get_rostime()
         # input_x_node = float(raw_input("x_node: "))
         # input_y_node = float(raw_input("y_node: "))
         # self.start = Node(input_x_node, input_y_node)
@@ -116,10 +118,18 @@ class RRT():
                     continue
                 randomNode.parent = nearest_ind
                 self.nodes.append(randomNode)
+		dx = nearestNode.x-randomNode.x
+		dy = nearestNode.y-randomNode.y
+		d = d + math.sqrt(dx * dx + dy * dy)
                 self.visualize_rrt(nearestNode, randomNode)
                 if abs(randomNode.x - self.final.x) < self.error and abs(randomNode.y - self.final.y) < self.error:
                     success = True
                     print "success"
+        	    fin = rospy.get_rostime()
+	            tardo = fin-init
+		    rospy.loginfo("Current time %i %i", tardo.secs, tardo.nsecs)
+		    print tardo
+		    print "distancia:",d
                     return True
         print("More iterations needed")
         return False
@@ -131,7 +141,7 @@ class RRT():
             d = (randomNode.x - nearestNode.x)
             m = n / d
             theta = math.atan(m)
-
+	    	
             if theta < 0:
                 if d < 0:
                     theta = theta + math.pi
@@ -143,14 +153,29 @@ class RRT():
 
             sin_theta = math.sin(theta)
             cos_theta = math.cos(theta)
+	    if nearestNode.x < randomNode.x and nearestNode.y> randomNode.y:
+		cos_theta = -cos_theta
+	    if nearestNode.x < randomNode.x and nearestNode.y <randomNode.y:
+		cos_theta = -cos_theta
+		sin_theta = -sin_theta
+	    if nearestNode.x > randomNode.x and nearestNode.y< randomNode.y:
+		sin_theta = -sin_theta
             for step in range(int(math.sqrt(n * n + d * d) / self.res)):
                 if self.map[int(randomNode.x / self.res + step * cos_theta / self.res)][
                     int(randomNode.y / self.res + step * sin_theta / self.res)] == 1:
                     return True
+	   
         else:
-            for step in range(int((randomNode.y - nearestNode.y) / self.res)):
-                if self.map[int(randomNode.x / self.res)][randomNode.y + step] == 1:
-                    return True
+	    if randomNode.y < nearestNode.y:
+            	for step in range(int((randomNode.y - nearestNode.y) / self.res)):
+                	if self.map[int(randomNode.x / self.res)][int(randomNode.y/self.res) - step] == 1:
+                    		return True
+	    else:            
+		for step in range(int((randomNode.y - nearestNode.y) / self.res)):
+                	if self.map[int(randomNode.x / self.res)][int(randomNode.y/self.res) + step] == 1:
+                    		return True
+	    
+
 
     def get_nearest_node(self, random_node):
         dlist = [(node.x - random_node.x) ** 2 + (node.y - random_node.y)
@@ -207,8 +232,8 @@ class RRT():
             lastIndex = node.parent
         path.append([self.start.x, self.start.y])
         path.reverse()
-
-        new_path = self.path_smoothing(path,1000)
+	new_path = path
+        #new_path = self.path_smoothing(path,1000)
         poseArray = PoseArray()
         #path_a = Path()
         for p in new_path:

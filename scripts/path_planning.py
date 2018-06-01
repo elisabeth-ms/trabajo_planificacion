@@ -22,7 +22,6 @@ from std_msgs.msg import ColorRGBA
 from math import atan2,degrees
 from nav_msgs.msg import OccupancyGrid
 
-from scipy.interpolate import interp1d
 
 path = []
 voro_publisher = rospy.Publisher('visualization_voronoi', Marker, queue_size=10)
@@ -48,7 +47,7 @@ class Map:
         self.graph = {}
         self.stay_nodes =[]
         self.res = 1
-
+        rospy.Subscriber("move_base/global_costmap/costmap",OccupancyGrid,self.callback_map)
     @timing
     def storeMap(self):
         self.map=[]
@@ -62,7 +61,8 @@ class Map:
 
     @timing
     def createVoronoi(self):
-        for i in range(0,len(self.map)):
+	self.points = []        
+	for i in range(0,len(self.map)):
             for j in range(0,len(self.map[0])):
                 if self.map[i][j] == 1:
                     self.points.append([i*self.res,j*self.res])
@@ -137,7 +137,7 @@ class Map:
             return True
         return False
 
-
+    @timing
     def a_star_path(self,start,goal):
         print "start:", start
         print "goal: ", goal
@@ -374,7 +374,7 @@ if __name__ == '__main__':
     #input = raw_input("Please enter map path: ")
     #map = Map(input)
     map= Map()
-    rospy.Subscriber("move_base/global_costmap/costmap",OccupancyGrid,map.callback_map)
+
     #map.storeMap()
     #map.readMap(map.map)
     #map.createVoronoi()

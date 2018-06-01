@@ -27,6 +27,7 @@ class Map:
         self.yaml_name = ''
         self.image_name = ''
         self.yaml_image_name = ''
+	self.res_real = 0.5
     @timing
     def storeMap(self):
         self.map=[]
@@ -34,15 +35,15 @@ class Map:
         with open(self.csvfile, 'rb') as csvfile:
             aux_map = np.loadtxt(self.csvfile,dtype=int, delimiter=",")
 
-        new_width = int(len(aux_map[0])/self.resolution)
-        new_height = int(len(aux_map)/self.resolution)
+        new_width = int(len(aux_map[0])*self.res_real/self.resolution)
+        new_height = int(len(aux_map)*self.res_real/self.resolution)
         s = (new_height,new_width)
         self.map = np.zeros(s,dtype='int')
 
         print aux_map
         for i in range(new_height):
             for j in range(new_width):
-                if aux_map[int(i*self.resolution), int(j*self.resolution)] == 1:
+                if aux_map[int(i*self.resolution/self.res_real), int(j*self.resolution/self.res_real)] == 1:
                     self.map[i,j] = 1
         print self.map
         #self.map = self.map.T

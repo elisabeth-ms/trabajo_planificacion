@@ -7,13 +7,12 @@
   <arg name="stacks"     value="$(optenv TURTLEBOT_STACKS hexagons)"/>  <!-- circles, hexagons -->
   <arg name="3d_sensor"  value="$(optenv TURTLEBOT_3D_SENSOR kinect)"/>  <!-- kinect, asus_xtion_pro -->
   <arg name="initial_pose_x" default="1.75"/>
-  <arg name="initial_pose_y" default="7.75"/>
+  <arg name="initial_pose_y" default="4.75"/>
   <arg name="initial_pose_a" default="0.0"/>
 
-  <include file="$(find turtlebot_gazebo)/launch/map5_world.launch">
+  <include file="$(find turtlebot_gazebo)/launch/map7_world.launch">
   </include>
 
-  <node pkg="trabajo_planificacion" type="path_planning.py" name="path_planning"/>
 
 
   <node name="rviz" pkg="rviz" type="rviz" respawn="true" />
@@ -34,7 +33,7 @@
 
   <rosparam file="$(find trabajo_planificacion)/cfg/teb_local_planner_params.yaml" command ="load"/>
 
-  <param name="base_global_planner" value="AstarVoronoi/AstarVoronoi"/>
+  <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
   <param name="planner_frequency" value="1.0" />
   <param name="planner_patience" value="5.0" />
 
@@ -46,7 +45,7 @@
 
   <!-- ****** Maps ***** -->
   <node name="map_server" pkg="map_server" type="map_server" args
-  ="$(find trabajo_planificacion)/maps/map5.yaml" output="screen">
+  ="$(find trabajo_planificacion)/maps/map7.yaml" output="screen">
   <param name="frame_id" value="map"/>
   </node>
 

@@ -13,7 +13,7 @@
   <include file="$(find turtlebot_gazebo)/launch/map5_world.launch">
   </include>
 
-  <node pkg="trabajo_planificacion" type="rrt_path.py" name="rrt_path"/>
+  <!--node pkg="trabajo_planificacion" type="rrt_path.py" name="rrt_path"/-->
 
   <node name="rviz" pkg="rviz" type="rviz" respawn="true" />
 
